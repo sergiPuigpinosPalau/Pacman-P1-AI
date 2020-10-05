@@ -11,6 +11,8 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
+from node import Node
+import sys
 
 """
 In search.py, you will implement generic search algorithms which are called by
@@ -90,9 +92,47 @@ def depthFirstSearch(problem):
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
+    return blindTreeSearch(problem,util.Queue())
+
+def blindTreeSearch(problem, fringe):
+    """Search the shallowest nodes in the search tree first.""" 
+    #Fringe: Queue/Stack that keep track of all the nodes that need to be expanded
+    #Push first node into the fringe 
+    fringe.push(Node(problem.getStartState()))
+    while True:
+        if fringe.isEmpty():
+            print ("It run out of Nodes to expand wich means that there's NO SOLUTION")
+            sys.exit(-1)
+        n = fringe.pop()
+        if problem.isGoalState(n.state):
+            return n.total_path()
+        for state,action,cost in problem.getSuccessors(n.state):
+            #Put successor nodes into the fringe so next iteration of the while loop can expand them 
+            ns = Node(state,n,action,cost)
+            fringe.push(ns)
+    
+
+def breadthGraphSearch(problem):
+    return blindGraphSearch(problem, util.Queue())
+
+def blindGraphSearch(problem, fringe):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #Similar to blindTreeSearch but this one checks wether the current state has already been expanded previously
+    expand = {}
+    fringe.push(Node(problem.getStartState()))
+    while True:
+        if fringe.isEmpty():
+            print "No sol"
+            sys.exit(-1)
+        n = fringe.pop()
+        expand[n.state] = n
+        if problem.isGoalState(n.state):
+            return n.total_path()
+        for state,action,cost in problem.getSuccessors(n.state):
+            ns = Node(state,n,action,cost)
+            if not ns.state in expand:
+                fringe.push(ns)
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
