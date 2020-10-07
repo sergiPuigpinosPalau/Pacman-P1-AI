@@ -88,11 +88,35 @@ def depthFirstSearch(problem):
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return blindTreeSearch(problem, util.Stack())
+
 
 def breadthFirstSearch(problem):
     return blindTreeSearch(problem,util.Queue())
+
+
+def blindTreeSearch(problem, fringe):
+    """Search the shallowest nodes in the search tree first.""" 
+    #Fringe: Queue/Stack that keep track of all the nodes that need to be expanded
+    #Push first node into the fringe 
+    expand = {}
+    fringe.push(Node(problem.getStartState()))
+    while True:
+        if fringe.isEmpty():
+            print ("It run out of Nodes to expand wich means that there's NO SOLUTION")
+            sys.exit(-1)
+        n = fringe.pop()
+        expand[n.state] = n
+        for state,action,cost in problem.getSuccessors(n.state):
+            #Put successor nodes into the fringe so next iteration of the while loop can expand them 
+            ns = Node(state,n,action,cost)
+            if problem.isGoalState(ns.state):
+                return ns.total_path()
+            if not ns.state in expand:
+                fringe.push(ns)
+
+'''
+
 
 def blindTreeSearch(problem, fringe):
     """Search the shallowest nodes in the search tree first.""" 
@@ -110,8 +134,8 @@ def blindTreeSearch(problem, fringe):
             #Put successor nodes into the fringe so next iteration of the while loop can expand them 
             ns = Node(state,n,action,cost)
             fringe.push(ns)
-    
 
+'''  
 def breadthGraphSearch(problem):
     return blindGraphSearch(problem, util.Queue())
 
@@ -122,7 +146,7 @@ def blindGraphSearch(problem, fringe):
     fringe.push(Node(problem.getStartState()))
     while True:
         if fringe.isEmpty():
-            print "No sol"
+            print "It run out of Nodes to expand wich means that there's NO SOLUTION"
             sys.exit(-1)
         n = fringe.pop()
         expand[n.state] = n
