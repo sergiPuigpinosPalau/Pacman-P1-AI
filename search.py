@@ -116,8 +116,6 @@ def blindTreeSearch(problem, fringe):
                 fringe.push(ns)
 
 '''
-
-
 def blindTreeSearch(problem, fringe):
     """Search the shallowest nodes in the search tree first.""" 
     #Fringe: Queue/Stack that keep track of all the nodes that need to be expanded
@@ -136,6 +134,7 @@ def blindTreeSearch(problem, fringe):
             fringe.push(ns)
 
 '''  
+
 def breadthGraphSearch(problem):
     return blindGraphSearch(problem, util.Queue())
 
@@ -159,9 +158,26 @@ def blindGraphSearch(problem, fringe):
 
 
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    import Queue as Q
+    fringe = Q.PriorityQueue()
+    expand = {}
+    fringe.put(Node(problem.getStartState()),0)
+    while True:
+        if fringe.empty():
+            print "It run out of Nodes to expand wich means that there's NO SOLUTION"
+            sys.exit(-1)
+        n = fringe.get()
+        expand[n.state] = n
+        if problem.isGoalState(n.state):
+            return n.total_path()
+        for state,action,cost in problem.getSuccessors(n.state):
+            ns = Node(state,n,action,cost)
+            if ns.state not in expand:
+                fringe.put(ns, ns.cost)
+            for nd in fringe.queue:
+                if nd.state == ns.state and ns.cost < nd.cost:
+                    fringe.put(ns, ns.cost)
+                    break                   
 
 def nullHeuristic(state, problem=None):
     """
