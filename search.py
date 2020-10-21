@@ -156,7 +156,7 @@ def blindGraphSearch(problem, fringe):
             if not ns.state in expand:
                 fringe.push(ns)
 
-
+'''
 def uniformCostSearch2(problem):
     import Queue as Q
     fringe = Q.PriorityQueue()
@@ -178,6 +178,7 @@ def uniformCostSearch2(problem):
                 if nd.state == ns.state and ns.cost < nd.cost:
                     fringe.put(ns, ns.cost)
                     break   
+'''
 
 def uniformCostSearch(problem):
     #garantiza que ha llegado por el camino minimo
@@ -185,6 +186,7 @@ def uniformCostSearch(problem):
     fringe = util.PriorityQueue()
     n = Node(problem.getStartState())
     fringe.push(n,n.cost)
+    print(n.cost)
     generated[n.state] = [n,'F'] #nodo esta en el fringe
     while True:
         if fringe.isEmpty():
@@ -193,16 +195,17 @@ def uniformCostSearch(problem):
         n = fringe.pop()
         if problem.isGoalState(n.state):
             return n.total_path()
-
-        if generated[n.state][1] == 'E': continue #'Shi ja hem expandid un node amb el mateix estat que algun del expanded, aquests que tenen el mateix estat din el expanded tindran coste major, llavors nos els podem saltar
+        #Mirem si l'estat del node actual coincideix amb el d'algun node amb el mateix estat pero que ja haigui sigut expanded 
+        #Si es el cas, es salta el node ja que voldra dir que ja havia un node amb el mateix estat i amb menys cost que ha sigut expanded
+        if generated[n.state][1] == 'E': continue 
 
         generated[n.state] = [n,'E'] #nodo en el expanded
         for state,action,cost in problem.getSuccessors(n.state):
             ns = Node(state, n, action, n.cost + cost)
-            if not ns.state in generated:
-                fringe.push(ns, ns.cost)
-                generated[ns.state] = [ns,'F']
-            elif ns.cost < generated[ns.state][0].cost: 
+            #Donem sempre per Valida la condicio generated[ns.state][1] == 'F'
+            #Ja que en cas de no ser-ho, voldra dir que el node amb el mateix estat que esta al generated, ha sigut expanded previament 
+            # i llavors sera 100% segur que aquest tindra menys cost que el que estas comparan actualment ja que el cost del actual == cost del cami que porte fet fins ara (optim) + seu cost
+            if (not ns.state in generated) or ns.cost < generated[ns.state][0].cost:
                 fringe.push(ns, ns.cost)
                 generated[ns.state] = [ns,'F']
 
@@ -217,10 +220,30 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
     #heuristic(state)
     #UCS + modific
-    util.raiseNotDefined()
+    #garantiza que ha llegado por el camino minimo
+    generated = {}
+    fringe = util.PriorityQueue()
+    n = Node(problem.getStartState())
+    fringe.push(n,n.cost)
+    generated[n.state] = [n,'F'] #nodo esta en el fringe
+    while True:
+        if fringe.isEmpty():
+            print "It run out of Nodes to expand wich means that there's NO SOLUTION"
+            sys.exit(-1)
+        n = fringe.pop()
+        if problem.isGoalState(n.state):
+            return n.total_path()
+        #Mirem si l'estat del node actual coincideix amb el d'algun node amb el mateix estat pero que ja haigui sigut expanded 
+        #Si es el cas, es salta el node ja que voldra dir que ja havia un node amb el mateix estat i amb menys cost que ha sigut expanded
+        if generated[n.state][1] == 'E': continue 
+        generated[n.state] = [n,'E'] #nodo en el expanded
+        for state,action,cost in problem.getSuccessors(n.state):
+            ns = Node(state, n, action, (n.cost + cost - heuristic(n.state,problem)) + heuristic(state,problem))
+            if (not ns.state in generated) or ns.cost < generated[ns.state][0].cost:
+                fringe.push(ns, ns.cost)
+                generated[ns.state] = [ns,'F']
 
 
 # Abbreviations
