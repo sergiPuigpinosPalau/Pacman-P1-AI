@@ -157,7 +157,7 @@ def blindGraphSearch(problem, fringe):
                 fringe.push(ns)
 
 
-def uniformCostSearch(problem):
+def uniformCostSearch2(problem):
     import Queue as Q
     fringe = Q.PriorityQueue()
     expand = {}
@@ -177,7 +177,36 @@ def uniformCostSearch(problem):
             for nd in fringe.queue:
                 if nd.state == ns.state and ns.cost < nd.cost:
                     fringe.put(ns, ns.cost)
-                    break                   
+                    break   
+
+def uniformCostSearch(problem):
+    #garantiza que ha llegado por el camino minimo
+    generated = {}
+    fringe = util.PriorityQueue()
+    n = Node(problem.getStartState())
+    fringe.push(n,n.cost)
+    generated[n.state] = [n,'F'] #nodo esta en el fringe
+    while True:
+        if fringe.isEmpty():
+            print "It run out of Nodes to expand wich means that there's NO SOLUTION"
+            sys.exit(-1)
+        n = fringe.pop()
+        if problem.isGoalState(n.state):
+            return n.total_path()
+
+        if generated[n.state][1] == 'E': continue #'Shi ja hem expandid un node amb el mateix estat que algun del expanded, aquests que tenen el mateix estat din el expanded tindran coste major, llavors nos els podem saltar
+
+        generated[n.state] = [n,'E'] #nodo en el expanded
+        for state,action,cost in problem.getSuccessors(n.state):
+            ns = Node(state, n, action, n.cost + cost)
+            if not ns.state in generated:
+                fringe.push(ns, ns.cost)
+                generated[ns.state] = [ns,'F']
+            elif ns.cost < generated[ns.state][0].cost: 
+                fringe.push(ns, ns.cost)
+                generated[ns.state] = [ns,'F']
+
+#elif generated[ns.state][1] == 'F' and ns.cost < generated[ns.state][0].cost:
 
 def nullHeuristic(state, problem=None):
     """
@@ -189,6 +218,8 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    #heuristic(state)
+    #UCS + modific
     util.raiseNotDefined()
 
 
