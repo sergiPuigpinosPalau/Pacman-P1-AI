@@ -372,11 +372,34 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
+    visited = state[1]    
+    unvisited = []        
+    node = state[0]       
+    heuristic = 0        
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    #Fem llista de corners no visitats
+    for corner in corners:
+        if not corner in visited:
+            unvisited.append(corner)
+
+    #Busquem el cami mes curt que recorri tots els corners desde la posicio actual del pacman
+    while unvisited: 
+        minDistance=-1
+        minCorner=-1
+        #Busquem el corner mes aprop utilitzan manhattanDistance
+        for corner in unvisited:    
+            distance = util.manhattanDistance(node, corner)
+            if  minDistance==-1 or distance < minDistance:
+                minDistance = distance
+                minCorner = corner
+        #Assignem el corner trobat per a que a la seguent iteracio busqui el corner mes aprop a aquest
+        heuristic += minDistance
+        node = minCorner
+        unvisited.remove(minCorner)
+
+    return heuristic 
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -469,7 +492,21 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
+    heuristic=0
+    foodCoordinates = foodGrid.asList()
+
+    #No tenim mes menjar
+    if len(foodCoordinates) == 0:
+        return 0
+    
+    for food in foodCoordinates:
+        #Obtenir distancia al menjar mes proper
+        distance = mazeDistance(position, food, problem.startingGameState)
+        if distance > heuristic:
+            heuristic = distance
+    return heuristic
+
+    
     return 0
 
 class ClosestDotSearchAgent(SearchAgent):

@@ -240,7 +240,10 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         if generated[n.state][1] == 'E': continue 
         generated[n.state] = [n,'E'] #nodo en el expanded
         for state,action,cost in problem.getSuccessors(n.state):
-            ns = Node(state, n, action, (n.cost + cost - heuristic(n.state,problem)) + heuristic(state,problem))
+            #g(n')=g(n)+c(n,n')
+            gNPrima=n.cost-heuristic(n.state, problem) + 1   
+            #f(n')=max(f(n), g(n') + h(n'))    
+            ns = Node(state, n, action, max(n.cost, gNPrima + heuristic(state,problem)))
             if (not ns.state in generated) or ns.cost < generated[ns.state][0].cost:
                 fringe.push(ns, ns.cost)
                 generated[ns.state] = [ns,'F']
@@ -251,3 +254,12 @@ bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
+
+
+'''
+for state,action,cost in problem.getSuccessors(n.state):
+    ns = Node(state, n, action, (n.cost + cost - heuristic(n.state,problem)) + heuristic(state,problem))
+    if (not ns.state in generated) or ns.cost < generated[ns.state][0].cost:
+        fringe.push(ns, ns.cost)
+        generated[ns.state] = [ns,'F']
+'''
