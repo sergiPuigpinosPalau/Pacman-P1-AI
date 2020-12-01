@@ -88,55 +88,12 @@ def depthFirstSearch(problem):
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
-    return blindTreeSearch(problem, util.Stack())
+    return blindGraphSearch(problem, util.Stack())
 
 
 def breadthFirstSearch(problem):
-    return blindTreeSearch(problem,util.Queue())
+    return blindGraphSearch(problem,util.Queue())
 
-
-def blindTreeSearch(problem, fringe):
-    """Search the shallowest nodes in the search tree first.""" 
-    #Fringe: Queue/Stack that keep track of all the nodes that need to be expanded
-    #Push first node into the fringe 
-    expand = {}
-    fringe.push(Node(problem.getStartState()))
-    while True:
-        if fringe.isEmpty():
-            print ("It run out of Nodes to expand wich means that there's NO SOLUTION")
-            sys.exit(-1)
-        n = fringe.pop()
-        expand[n.state] = n
-        for state,action,cost in problem.getSuccessors(n.state):
-            #Put successor nodes into the fringe so next iteration of the while loop can expand them 
-            ns = Node(state,n,action,cost)
-            if problem.isGoalState(ns.state):
-                return ns.total_path()
-            if not ns.state in expand:
-                fringe.push(ns)
-
-'''
-def blindTreeSearch(problem, fringe):
-    """Search the shallowest nodes in the search tree first.""" 
-    #Fringe: Queue/Stack that keep track of all the nodes that need to be expanded
-    #Push first node into the fringe 
-    fringe.push(Node(problem.getStartState()))
-    while True:
-        if fringe.isEmpty():
-            print ("It run out of Nodes to expand wich means that there's NO SOLUTION")
-            sys.exit(-1)
-        n = fringe.pop()
-        if problem.isGoalState(n.state):
-            return n.total_path()
-        for state,action,cost in problem.getSuccessors(n.state):
-            #Put successor nodes into the fringe so next iteration of the while loop can expand them 
-            ns = Node(state,n,action,cost)
-            fringe.push(ns)
-
-'''  
-
-def breadthGraphSearch(problem):
-    return blindGraphSearch(problem, util.Queue())
 
 def blindGraphSearch(problem, fringe):
     """Search the shallowest nodes in the search tree first."""
@@ -148,37 +105,15 @@ def blindGraphSearch(problem, fringe):
             print "It run out of Nodes to expand wich means that there's NO SOLUTION"
             sys.exit(-1)
         n = fringe.pop()
-        expand[n.state] = n
         if problem.isGoalState(n.state):
             return n.total_path()
+        if n.state in expand: continue
+        expand[n.state] = n
         for state,action,cost in problem.getSuccessors(n.state):
             ns = Node(state,n,action,cost)
             if not ns.state in expand:
                 fringe.push(ns)
 
-'''
-def uniformCostSearch2(problem):
-    import Queue as Q
-    fringe = Q.PriorityQueue()
-    expand = {}
-    fringe.put(Node(problem.getStartState()),0)
-    while True:
-        if fringe.empty():
-            print "It run out of Nodes to expand wich means that there's NO SOLUTION"
-            sys.exit(-1)
-        n = fringe.get()
-        expand[n.state] = n
-        if problem.isGoalState(n.state):
-            return n.total_path()
-        for state,action,cost in problem.getSuccessors(n.state):
-            ns = Node(state,n,action,cost)
-            if ns.state not in expand:
-                fringe.put(ns, ns.cost)
-            for nd in fringe.queue:
-                if nd.state == ns.state and ns.cost < nd.cost:
-                    fringe.put(ns, ns.cost)
-                    break   
-'''
 
 def uniformCostSearch(problem):
     #garantiza que ha llegado por el camino minimo
@@ -186,7 +121,6 @@ def uniformCostSearch(problem):
     fringe = util.PriorityQueue()
     n = Node(problem.getStartState())
     fringe.push(n,n.cost)
-    print(n.cost)
     generated[n.state] = [n,'F'] #nodo esta en el fringe
     while True:
         if fringe.isEmpty():
@@ -241,11 +175,11 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         generated[n.state] = [n,'E'] #nodo en el expanded
         for state,action,cost in problem.getSuccessors(n.state):
             #g(n')=g(n)+c(n,n')
-            gNPrima=n.cost-heuristic(n.state, problem) + 1   
-            #f(n')=max(f(n), g(n') + h(n'))    
-            ns = Node(state, n, action, max(n.cost, gNPrima + heuristic(state,problem)))
-            if (not ns.state in generated) or ns.cost < generated[ns.state][0].cost:
-                fringe.push(ns, ns.cost)
+            gNPrima=n.cost + cost    
+            ns = Node(state, n, action, gNPrima)
+            if not ns.state in generated or ns.cost < generated[ns.state][0].cost:
+                #f(n')=max(f(n), g(n') + h(n')) 
+                fringe.push(ns, max(n.cost, ns.cost + heuristic(state,problem)))
                 generated[ns.state] = [ns,'F']
 
 
@@ -256,10 +190,3 @@ astar = aStarSearch
 ucs = uniformCostSearch
 
 
-'''
-for state,action,cost in problem.getSuccessors(n.state):
-    ns = Node(state, n, action, (n.cost + cost - heuristic(n.state,problem)) + heuristic(state,problem))
-    if (not ns.state in generated) or ns.cost < generated[ns.state][0].cost:
-        fringe.push(ns, ns.cost)
-        generated[ns.state] = [ns,'F']
-'''

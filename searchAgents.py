@@ -309,19 +309,19 @@ class CornersProblem(search.SearchProblem):
         position, corners = state
         return len(corners) == 0 #no quede corners por recorrer
 
+
     def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
 
-         As noted in search.py:
+            As noted in search.py:
             For a given state, this should return a list of triples, (successor,
             action, stepCost), where 'successor' is a successor to the current
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that successor
         """
-        #sucessors -> [(6,5), 'North', 1]
-        print(state)
-        position, corners = state #separar tupla
+        position, corners = state
+
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
@@ -330,20 +330,22 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
-            x,y = position
+            x, y = position
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-            hitsWall = self.walls[nextx][nexty] #estavas en un muro o no
+            hitsWall = self.walls[nextx][nexty]
+
             if not hitsWall:
-                new_pos = (nextx,nexty)
+                new_pos = (nextx, nexty)
                 new_corners = []
                 for corner in corners:
                     if new_pos != corner:
                         new_corners.append(corner)
-                successors.append(((new_pos,tuple(new_corners)),action,1))
+                successors.append(((new_pos, tuple(new_corners)), action, 1))
 
-        self._expanded += 1 # DO NOT CHANGE
+        self._expanded += 1  # DO NOT CHANGE
         return successors
+
 
     def getCostOfActions(self, actions):
         """
@@ -363,26 +365,23 @@ def cornersHeuristic(state, problem):
     """
     A heuristic for the CornersProblem that you defined.
 
-      state:   The current search state
-               (a data structure you chose in your search problem)
+    state:   The current search state
+            (a data structure you chose in your search problem)
 
-      problem: The CornersProblem instance for this layout.
+    problem: The CornersProblem instance for this layout.
 
     This function should always return a number that is a lower bound on the
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
     visited = state[1]    
-    unvisited = []        
+    unvisited = state[1][:]        
     node = state[0]       
     heuristic = 0        
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     #Fem llista de corners no visitats
-    for corner in corners:
-        if not corner in visited:
-            unvisited.append(corner)
 
     #Busquem el cami mes curt que recorri tots els corners desde la posicio actual del pacman
     while unvisited: 
@@ -397,9 +396,12 @@ def cornersHeuristic(state, problem):
         #Assignem el corner trobat per a que a la seguent iteracio busqui el corner mes aprop a aquest
         heuristic += minDistance
         node = minCorner
-        unvisited.remove(minCorner)
+        temp = list(unvisited)
+        temp.remove(minCorner)
+        unvisited = tuple(temp)
 
     return heuristic 
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
